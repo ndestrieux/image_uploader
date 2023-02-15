@@ -4,9 +4,16 @@ from django.db import models
 from api.properties import UserTypeChoices
 
 
+class User(AbstractUser):
+    type = models.CharField(
+        max_length=32, choices=[(tag.name, tag.value) for tag in UserTypeChoices]
+    )
+
+
 class Profile(models.Model):
     original_image_access = models.BooleanField(default=False)
     binary_image_access = models.BooleanField(default=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
 class ThumbnailSize(models.Model):
@@ -14,13 +21,6 @@ class ThumbnailSize(models.Model):
     profile = models.ForeignKey(
         Profile, on_delete=models.CASCADE, related_name="thumbnail_sizes"
     )
-
-
-class User(AbstractUser):
-    type = models.CharField(
-        max_length=32, choices=[(tag.name, tag.value) for tag in UserTypeChoices]
-    )
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
 
 
 class Image(models.Model):
