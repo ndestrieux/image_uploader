@@ -28,7 +28,8 @@ class BaseTestSetup:
         }
         self.testing_image = ContentFile(b"...", name="test.png")
 
-    def tearDown(self) -> None:
+    @classmethod
+    def tearDownClass(cls) -> None:
         images = Image.objects.all()
         thumbnails = Thumbnail.objects.all()
         for img in images:
