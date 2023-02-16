@@ -27,6 +27,6 @@ def create_alternate_images(sender, instance, created, **kwargs):
             profile=user_profile
         ).values_list("size", flat=True)
         if user_profile.binary_image_access:
-            create_binary_image(instance.id)
+            create_binary_image.delay(instance.id)
         for size in thumbnail_sizes:
-            create_thumbnail(instance.id, size)
+            create_thumbnail.delay(instance.id, size)
