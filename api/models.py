@@ -1,3 +1,8 @@
+import random
+import re
+import string
+from datetime import datetime as dt
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -31,6 +36,24 @@ class Image(models.Model):
     )
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     uploaded_on = models.DateTimeField(auto_now_add=True)
+
+    def save(
+        self, force_insert=False, force_update=False, using=None, update_fields=None
+    ):
+        self.original.name = self.rename_image_file(self.original.name)
+        super().save(
+            force_insert=False, force_update=False, using=None, update_fields=None
+        )
+
+    def rename_image_file(self, filename):
+        ext = filename.split(".")[-1]
+        if ext.lower() == "jpg":
+            ext = "jpeg"
+        time_stamp = dt.now().strftime("%Y%m%d%H%M%S")
+        random_id = "".join(random.choices(string.ascii_lowercase + string.digits, k=9))
+        name = re.sub(r"[^\w]+", "-", self.name.lower())
+        filename = f"{time_stamp}-{random_id}-{name}.{ext}"
+        return filename
 
 
 class Thumbnail(models.Model):
