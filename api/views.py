@@ -1,10 +1,11 @@
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from api.serializers import UploadImageSerializer
+from api.models import Image
+from api.serializers import ImageListSerializer, UploadImageSerializer
 
 
 class UploadImageView(CreateAPIView):
@@ -26,3 +27,20 @@ class UploadImageView(CreateAPIView):
         key = self.request.META.get("HTTP_AUTHORIZATION").split()[-1]
         context["uploaded_by"] = Token.objects.get(key=key).user
         return context
+
+
+class ImageListAPIView(ListAPIView):
+    serializer_class = ImageListSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["user"] = self.get_authorized_user()
+        return context
+
+    def get_queryset(self):
+        return Image.objects.filter(uploaded_by=self.get_authorized_user())
+
+    def get_authorized_user(self):
+        key = self.request.META.get("HTTP_AUTHORIZATION").split()[-1]
+        return Token.objects.get(key=key).user

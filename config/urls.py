@@ -17,10 +17,11 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework.authtoken.views import ObtainAuthToken
 
-from api.views import UploadImageView
+from api.views import ImageListAPIView, UploadImageView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("authtoken/", ObtainAuthToken.as_view(), name="auth-token"),
     path("upload/", UploadImageView.as_view(), name="upload"),
+    path("image_list/", ImageListAPIView.as_view(), name="image-list"),
 ]
