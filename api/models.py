@@ -40,7 +40,8 @@ class Image(models.Model):
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
-        self.original.name = self.rename_image_file(self.original.name)
+        if self.pk is None:
+            self.original.name = self.rename_image_file(self.original.name)
         super().save(
             force_insert=False, force_update=False, using=None, update_fields=None
         )
