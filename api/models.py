@@ -11,7 +11,9 @@ from api.properties import UserTypeChoices
 
 class User(AbstractUser):
     type = models.CharField(
-        max_length=32, choices=[(tag.name, tag.value) for tag in UserTypeChoices]
+        max_length=32,
+        choices=[(tag.name, tag.value) for tag in UserTypeChoices],
+        default=UserTypeChoices.CUSTOM.name,
     )
 
 
@@ -50,7 +52,7 @@ class Profile(models.Model):
 
 
 class ThumbnailSize(models.Model):
-    size = models.IntegerField()
+    size = models.PositiveIntegerField()
     profile = models.ForeignKey(
         Profile, on_delete=models.CASCADE, related_name="thumbnail_sizes"
     )
