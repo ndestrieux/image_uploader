@@ -3,7 +3,7 @@ import re
 import string
 from datetime import datetime as dt
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 
 from api.properties import UserTypeChoices
@@ -13,6 +13,34 @@ class User(AbstractUser):
     type = models.CharField(
         max_length=32, choices=[(tag.name, tag.value) for tag in UserTypeChoices]
     )
+
+
+class RegularUserManager(UserManager):
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(type__in=[choice.name for choice in UserTypeChoices][:-1])
+        )
+
+
+class RegularUser(User):
+    objects = RegularUserManager()
+
+    class Meta:
+        proxy = True
+
+
+class CustomUserManager(UserManager):
+    def get_queryset(self):
+        return super().get_queryset().filter(type=UserTypeChoices.CUSTOM.name)
+
+
+class CustomUser(User):
+    objects = CustomUserManager()
+
+    class Meta:
+        proxy = True
 
 
 class Profile(models.Model):
