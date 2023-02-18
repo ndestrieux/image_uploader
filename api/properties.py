@@ -8,33 +8,28 @@ class UserTypeChoices(Enum):
     CUSTOM = "Custom"
 
 
-thumbnail_size_properties = {
-    UserTypeChoices.BASIC.name: [
-        200,
-    ],
-    UserTypeChoices.PREMIUM.name: [
-        200,
-        400,
-    ],
-    UserTypeChoices.ENTERPRISE.name: [
-        200,
-        400,
-    ],
-    UserTypeChoices.CUSTOM.name: [],
-}
-
-
-original_image_properties = {
-    UserTypeChoices.BASIC.name: False,
-    UserTypeChoices.PREMIUM.name: True,
-    UserTypeChoices.ENTERPRISE.name: True,
-    UserTypeChoices.CUSTOM.name: False,
-}
-
-
-binary_image_properties = {
-    UserTypeChoices.BASIC.name: False,
-    UserTypeChoices.PREMIUM.name: False,
-    UserTypeChoices.ENTERPRISE.name: True,
-    UserTypeChoices.CUSTOM.name: False,
+profile_properties = {
+    UserTypeChoices.BASIC.name: {
+        "thumbnail_sizes": [
+            200,
+        ],
+        "original_image_access": False,
+        "binary_image_access": False,
+    },
+    UserTypeChoices.PREMIUM.name: {
+        "thumbnail_sizes": [
+            200,
+            400,
+        ],
+        "original_image_access": True,
+        "binary_image_access": False,
+    },
+    UserTypeChoices.ENTERPRISE.name: {
+        "thumbnail_sizes": [
+            200,
+            400,
+        ],
+        "original_image_access": True,
+        "binary_image_access": True,
+    },
 }
