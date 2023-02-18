@@ -22,7 +22,10 @@ class RegularUserManager(UserManager):
         return (
             super()
             .get_queryset()
-            .filter(type__in=[choice.name for choice in UserTypeChoices][:-1])
+            .filter(
+                type__in=[choice.name for choice in UserTypeChoices][:-1],
+                is_superuser=False,
+            )
         )
 
 
@@ -35,7 +38,11 @@ class RegularUser(User):
 
 class CustomUserManager(UserManager):
     def get_queryset(self):
-        return super().get_queryset().filter(type=UserTypeChoices.CUSTOM.name)
+        return (
+            super()
+            .get_queryset()
+            .filter(type=UserTypeChoices.CUSTOM.name, is_superuser=False)
+        )
 
 
 class CustomUser(User):
