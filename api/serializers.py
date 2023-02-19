@@ -36,6 +36,8 @@ class ImageListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
         fields = [
+            "name",
+            "uploaded_on",
             "image",
             "binary",
             "thumbnails",

@@ -101,6 +101,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
+    "DATETIME_FORMAT": "%d-%m-%Y %H:%M:%S",
 }
 
 
