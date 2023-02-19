@@ -37,7 +37,7 @@ class UploadImageView(CreateAPIView):
             )
         elif user_profile.binary_image_access:
             raise ValidationError("binary_expire_time field expected.")
-        else:
+        elif serializer.validated_data.get("binary_expire_time", None):
             raise ValidationError("binary_expire_time field unexpected.")
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
