@@ -2,8 +2,8 @@ from collections import OrderedDict
 
 from rest_framework import serializers
 
-from api.fields import BinaryField, ImageField, ThumbnailsField
-from api.models import Image, Thumbnail
+from api.fields import BinaryImageField, OriginalImageField
+from api.models import Image
 
 
 class UploadImageSerializer(serializers.ModelSerializer):
@@ -20,10 +20,10 @@ class UploadImageSerializer(serializers.ModelSerializer):
 
 
 class ImageListSerializer(serializers.ModelSerializer):
-    image = ImageField(source="original")
-    binary = BinaryField()
-    thumbnails = ThumbnailsField(
-        many=True, queryset=Thumbnail.objects.all(), slug_field="thumbnail"
+    image = OriginalImageField(source="original", view_name="image")
+    binary = BinaryImageField(view_name="binary")
+    thumbnails = serializers.HyperlinkedIdentityField(
+        many=True, read_only=True, view_name="thumbnail"
     )
 
     class Meta:
