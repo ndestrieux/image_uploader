@@ -71,6 +71,7 @@ class Image(models.Model):
     binary = models.ImageField(
         upload_to="binary_images", max_length=512, blank=True, null=True
     )
+    binary_expiration_date = models.DateTimeField(blank=True, null=True)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     uploaded_on = models.DateTimeField(auto_now_add=True)
 
