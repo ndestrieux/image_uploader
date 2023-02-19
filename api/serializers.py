@@ -18,6 +18,13 @@ class UploadImageSerializer(serializers.ModelSerializer):
         uploaded_by = self.context["uploaded_by"]
         return Image.objects.create(uploaded_by=uploaded_by, **validated_data)
 
+    def validate_binary_expire_time(self, value):
+        if 300 <= value <= 30000:
+            return value
+        raise serializers.ValidationError(
+            "Binary image expire time should be between 300 and 30000 seconds."
+        )
+
 
 class ImageListSerializer(serializers.ModelSerializer):
     image = OriginalImageField(source="original", view_name="image")
