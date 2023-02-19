@@ -27,9 +27,12 @@ class UploadImageView(CreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        key = self.request.META.get("HTTP_AUTHORIZATION").split()[-1]
-        context["uploaded_by"] = Token.objects.get(key=key).user
+        context["uploaded_by"] = self.get_user()
         return context
+
+    def get_user(self):
+        key = self.request.META.get("HTTP_AUTHORIZATION").split()[-1]
+        return Token.objects.get(key=key).user
 
 
 class ImageListAPIView(ListAPIView):
@@ -39,12 +42,12 @@ class ImageListAPIView(ListAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context["user"] = self.get_authorized_user()
+        context["user"] = self.get_user()
         return context
 
     def get_queryset(self):
         return Image.objects.filter(uploaded_by=self.get_authorized_user())
 
-    def get_authorized_user(self):
+    def get_user(self):
         key = self.request.META.get("HTTP_AUTHORIZATION").split()[-1]
         return Token.objects.get(key=key).user
