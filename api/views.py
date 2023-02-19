@@ -67,7 +67,7 @@ class ImageListAPIView(ListAPIView):
         return context
 
     def get_queryset(self):
-        return Image.objects.filter(uploaded_by=self.get_authorized_user())
+        return Image.objects.filter(uploaded_by=self.get_user())
 
     def get_user(self):
         key = self.request.META.get("HTTP_AUTHORIZATION").split()[-1]
