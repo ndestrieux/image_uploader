@@ -2,7 +2,7 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 import pytz
-from django.http import Http404
+from django.http import HttpResponseGone, HttpResponseNotFound
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
@@ -86,7 +86,7 @@ class OriginalImageView(RetrieveAPIView):
         instance = self.get_object()
         uploader_profile = Profile.objects.get(user=instance.uploaded_by)
         if not uploader_profile.original_image_access:
-            raise Http404
+            return HttpResponseNotFound("Image not available")
         data = instance.original
         return Response(data)
 
@@ -104,7 +104,7 @@ class BinaryImageView(RetrieveAPIView):
         if instance.binary_expiration_date.replace(tzinfo=pytz.utc) < dt.now().replace(
             tzinfo=pytz.utc
         ):
-            raise Http404
+            return HttpResponseGone("The link has expired")
         data = instance.binary
         return Response(data)
 
