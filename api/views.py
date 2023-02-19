@@ -3,6 +3,8 @@ from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
+
 
 from api.models import Image
 from api.serializers import ImageListSerializer, UploadImageSerializer
@@ -11,6 +13,7 @@ from api.serializers import ImageListSerializer, UploadImageSerializer
 class UploadImageView(CreateAPIView):
     serializer_class = UploadImageSerializer
     permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer, )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -32,6 +35,7 @@ class UploadImageView(CreateAPIView):
 class ImageListAPIView(ListAPIView):
     serializer_class = ImageListSerializer
     permission_classes = (IsAuthenticated,)
+    renderer_classes = (JSONRenderer, )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
