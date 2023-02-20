@@ -75,6 +75,9 @@ class Image(models.Model):
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     uploaded_on = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ["-uploaded_on"]
+
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
