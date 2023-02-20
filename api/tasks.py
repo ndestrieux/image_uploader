@@ -10,12 +10,10 @@ from api.models import Image, Thumbnail
 
 @shared_task
 def create_thumbnail(image_id: int, size: int) -> str:
-    img = Image.objects.get(id=image_id).original
+    img_instance = Image.objects.get(id=image_id)
+    img = img_instance.original
     thumb = PilImg.open(img)
-    left = 0
-    top = 0
-    right = size
-    bottom = size
+    left, top, right, bottom = 0, 0, size, size
     if thumb.width > thumb.height:
         output_size = (thumb.width, size)
         thumb.thumbnail(output_size, PilImg.ANTIALIAS)
@@ -34,8 +32,8 @@ def create_thumbnail(image_id: int, size: int) -> str:
     buffer = BytesIO()
     name, extension = re.split(r"[/.]", img.name)[-2:]
     thumb.save(buffer, format=extension)
-    thumb = File(buffer, name=f"{name}-tb{size}.{extension}")
-    Thumbnail.objects.create(thumbnail=thumb, image=Image.objects.get(id=image_id))
+    thumb = File(buffer, name=f"{img_instance.uploaded_by}/{name}-tb{size}.{extension}")
+    Thumbnail.objects.create(thumbnail=thumb, image=img_instance)
     return "Thumbnail created successfully!"
 
 
@@ -48,7 +46,9 @@ def create_binary_image(image_id: int) -> str:
     buffer = BytesIO()
     name, extension = re.split(r"[/.]", img.name)[-2:]
     binary_img.save(buffer, format=extension)
-    binary_img = File(buffer, name=f"{name}-binary.{extension}")
+    binary_img = File(
+        buffer, name=f"{img_instance.uploaded_by}/{name}-binary.{extension}"
+    )
     img_instance.binary = binary_img
     img_instance.save(update_fields=["binary"])
     return "Binary image created successfully!"

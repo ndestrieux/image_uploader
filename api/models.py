@@ -91,7 +91,7 @@ class Image(models.Model):
         time_stamp = dt.now().strftime("%Y%m%d%H%M%S")
         random_id = "".join(random.choices(string.ascii_lowercase + string.digits, k=9))
         name = re.sub(r"[^\w]+", "-", self.name.lower())
-        filename = f"{time_stamp}-{random_id}-{name}.{ext}"
+        filename = f"{self.uploaded_by}/{time_stamp}-{random_id}-{name}.{ext}"
         return filename
 
 
