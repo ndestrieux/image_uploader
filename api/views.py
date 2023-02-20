@@ -41,6 +41,7 @@ class ImageListAPIView(ListAPIView):
     serializer_class = ImageListSerializer
     permission_classes = (IsAuthenticated,)
     renderer_classes = (JSONRenderer,)
+    filterset_fields = ("name",)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
