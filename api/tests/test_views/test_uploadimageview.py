@@ -1,4 +1,5 @@
 import io
+from unittest.mock import patch
 
 from django.urls import reverse
 from PIL import Image as PilImg
@@ -6,10 +7,36 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
+from api.models import CustomUser, Profile, User
+from api.properties import UserTypeChoices
 from api.tests.test_views.viewstestsetup import ViewBaseTestSetup
 
 
 class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
+    def setUp(self) -> None:
+        super().setUp()
+        self.test_custom_user_with_binary_image = CustomUser.objects.create_user(
+            username="test_custom_user_with_binary_image",
+            password="password",
+            type=UserTypeChoices.CUSTOM.name,
+        )
+        self.test_custom_profile_with_binary_image = Profile.objects.create(
+            binary_image_access=True, user=self.test_custom_user_with_binary_image
+        )
+        self.test_custom_user_without_binary_image = CustomUser.objects.create_user(
+            username="test_custom_user_without_binary_image",
+            password="password",
+            type=UserTypeChoices.CUSTOM.name,
+        )
+        self.test_custom_profile_without_binary_image = Profile.objects.create(
+            user=self.test_custom_user_without_binary_image
+        )
+        self.users = User.objects.all()
+        for user in self.users:
+            Token.objects.create(user=user)
+
+    patch("celery.app.task.Task.delay")
+
     def generate_image_test_file(self):
         file = io.BytesIO()
         image = PilImg.new("RGBA", size=(800, 700), color=(155, 0, 0))
@@ -18,9 +45,13 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
         file.seek(0)
         return file
 
+    patch("celery.app.task.Task.delay")
+
     def generate_non_image_test_file(self):
         file = io.StringIO("not_an_image.txt")
         return file
+
+    patch("celery.app.task.Task.delay")
 
     def testShouldReturn201WhenCorrectImageFormatUploaded(self):
         token = Token.objects.get(user=self.test_basic_user)
@@ -30,6 +61,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
             reverse("upload"), format="multipart", data=data, **header
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    patch("celery.app.task.Task.delay")
 
     def testShouldReturn400WhenIncorrectImageFormatUploaded(self):
         token = Token.objects.get(user=self.test_basic_user)
@@ -43,6 +76,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    patch("celery.app.task.Task.delay")
+
     def testShouldReturn401WhenUnauthorizedUserUploadFile(self):
         header = {"HTTP_AUTHORIZATION": f"Token unknown"}
         data = {
@@ -53,6 +88,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
             reverse("upload"), format="multipart", data=data, **header
         )
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    patch("celery.app.task.Task.delay")
 
     def testShouldReturn201WhenPremiumUserUploadFile(self):
         token = Token.objects.get(user=self.test_premium_user)
@@ -65,6 +102,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
             reverse("upload"), format="multipart", data=data, **header
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    patch("celery.app.task.Task.delay")
 
     def testShouldReturn201WhenEnterpriseUserUploadFileWithBinaryExpireTimeFieldInRange(
         self,
@@ -81,6 +120,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    patch("celery.app.task.Task.delay")
+
     def testShouldReturn400WhenEnterpriseUserUploadFileWithBinaryExpireTimeFieldOutOfRange(
         self,
     ):
@@ -96,6 +137,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    patch("celery.app.task.Task.delay")
+
     def testShouldReturn400WhenEnterpriseUserUploadFileWithoutBinaryExpireTimeField(
         self,
     ):
@@ -109,6 +152,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
             reverse("upload"), format="multipart", data=data, **header
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    patch("celery.app.task.Task.delay")
 
     def testShouldReturn201WhenCustomUserWithBinaryFileAccessUploadFileWithBinaryExpireTimeField(
         self,
@@ -125,6 +170,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    patch("celery.app.task.Task.delay")
+
     def testShouldReturn400WhenCustomUserWithBinaryFileAccessUploadFileWithoutBinaryExpireTimeField(
         self,
     ):
@@ -139,6 +186,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    patch("celery.app.task.Task.delay")
+
     def testShouldReturn201WhenCustomUserWithoutBinaryFileAccessUploadFileWithoutBinaryExpireTimeField(
         self,
     ):
@@ -152,6 +201,8 @@ class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
             reverse("upload"), format="multipart", data=data, **header
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    patch("celery.app.task.Task.delay")
 
     def testShouldReturn400WhenCustomUserWithoutBinaryFileAccessUploadFileWithBinaryExpireTimeField(
         self,
