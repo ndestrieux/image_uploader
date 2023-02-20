@@ -1,4 +1,7 @@
+import io
+
 from django.urls import reverse
+from PIL import Image as PilImg
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
@@ -7,6 +10,18 @@ from api.tests.test_views.viewstestsetup import ViewBaseTestSetup
 
 
 class UploadImageViewTest(ViewBaseTestSetup, APITestCase):
+    def generate_image_test_file(self):
+        file = io.BytesIO()
+        image = PilImg.new("RGBA", size=(800, 700), color=(155, 0, 0))
+        image.save(file, "png")
+        file.name = "image_test.png"
+        file.seek(0)
+        return file
+
+    def generate_non_image_test_file(self):
+        file = io.StringIO("not_an_image.txt")
+        return file
+
     def testShouldReturn201WhenCorrectImageFormatUploaded(self):
         token = Token.objects.get(user=self.test_basic_user)
         header = {"HTTP_AUTHORIZATION": f"Token {token}"}

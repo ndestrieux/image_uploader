@@ -1,10 +1,7 @@
-import io
 import shutil
 from glob import glob
 
 from django.conf import settings
-from django.core.files.base import ContentFile
-from PIL import Image as PilImg
 from rest_framework.authtoken.models import Token
 
 from api.models import CustomUser, Profile, RegularUser, User
@@ -48,19 +45,6 @@ class ViewBaseTestSetup:
         cls.users = User.objects.all()
         for user in cls.users:
             Token.objects.create(user=user)
-        cls.test_non_image = ContentFile(b"...", name="test.txt")
-
-    def generate_image_test_file(self):
-        file = io.BytesIO()
-        image = PilImg.new("RGBA", size=(800, 700), color=(155, 0, 0))
-        image.save(file, "png")
-        file.name = "image_test.png"
-        file.seek(0)
-        return file
-
-    def generate_non_image_test_file(self):
-        file = io.StringIO("not_an_image.txt")
-        return file
 
     @classmethod
     def tearDownClass(cls) -> None:
