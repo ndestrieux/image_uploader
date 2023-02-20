@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.http import HttpResponseGone, HttpResponseNotFound
 from django.utils import timezone
 from rest_framework import status
@@ -8,7 +6,6 @@ from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
 
 from api.models import Image, Profile, Thumbnail
 from api.renderers import JPEGRenderer, PNGRenderer
@@ -23,21 +20,6 @@ class UploadImageView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user_profile = Profile.objects.get(user=self.get_user())
-        if (
-            serializer.validated_data.get("binary_expire_time", None)
-            and user_profile.binary_image_access
-        ):
-            binary_expire_time = serializer.validated_data.pop(
-                "binary_expire_time", None
-            )
-            serializer.validated_data[
-                "binary_expiration_date"
-            ] = timezone.now() + timedelta(seconds=binary_expire_time)
-        elif user_profile.binary_image_access:
-            raise ValidationError("binary_expire_time field expected.")
-        elif serializer.validated_data.get("binary_expire_time", None):
-            raise ValidationError("binary_expire_time field unexpected.")
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         data = {
