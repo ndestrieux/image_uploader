@@ -17,7 +17,6 @@ class ImageListAPIViewTest(ViewBaseTestSetup, APITestCase):
         self.users = User.objects.all()
         for user in self.users:
             Token.objects.create(user=user)
-        for user in self.users:
             Image.objects.create(
                 name="test", original=self.test_image, uploaded_by=user
             )
