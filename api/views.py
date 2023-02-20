@@ -1,8 +1,7 @@
-from datetime import datetime as dt
 from datetime import timedelta
 
-import pytz
 from django.http import HttpResponseGone, HttpResponseNotFound
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
@@ -32,9 +31,9 @@ class UploadImageView(CreateAPIView):
             binary_expire_time = serializer.validated_data.pop(
                 "binary_expire_time", None
             )
-            serializer.validated_data["binary_expiration_date"] = dt.now() + timedelta(
-                seconds=binary_expire_time
-            )
+            serializer.validated_data[
+                "binary_expiration_date"
+            ] = timezone.now() + timedelta(seconds=binary_expire_time)
         elif user_profile.binary_image_access:
             raise ValidationError("binary_expire_time field expected.")
         elif serializer.validated_data.get("binary_expire_time", None):
@@ -101,9 +100,7 @@ class BinaryImageView(RetrieveAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        if instance.binary_expiration_date.replace(tzinfo=pytz.utc) < dt.now().replace(
-            tzinfo=pytz.utc
-        ):
+        if instance.binary_expiration_date < timezone.now():
             return HttpResponseGone("The link has expired")
         data = instance.binary
         return Response(data)
