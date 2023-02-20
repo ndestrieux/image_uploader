@@ -1,10 +1,10 @@
 from django.test import TestCase
 
 from api.models import Profile, RegularUser, ThumbnailSize
-from api.tests.basesetup import BaseTestSetup
+from api.tests.test_signals.signalsbasesetup import BaseTestSetup
 
 
-class UserSignalTest(BaseTestSetup, TestCase):
+class CreateProfileSignalTest(BaseTestSetup, TestCase):
     def testShouldReturnTrueWhenProfileCreatedAlongWithUser(self):
         new_user = RegularUser.objects.create_user(**self.test_basic_user)
         user_id_list = Profile.objects.all().values_list("user", flat=True)
