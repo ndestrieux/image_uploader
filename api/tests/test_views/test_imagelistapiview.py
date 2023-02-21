@@ -11,7 +11,8 @@ from api.tests.test_views.viewstestsetup import ViewBaseTestSetup
 
 
 class ImageListAPIViewTest(ViewBaseTestSetup, APITestCase):
-    def setUp(self) -> None:
+    @patch("celery.app.task.Task.delay")
+    def setUp(self, mock_task) -> None:
         super().setUp()
         self.test_image = ContentFile(b"...", name="test/test.png")
         self.users = User.objects.all()
@@ -20,8 +21,6 @@ class ImageListAPIViewTest(ViewBaseTestSetup, APITestCase):
             Image.objects.create(
                 name="test", original=self.test_image, uploaded_by=user
             )
-
-    patch("celery.app.task.Task.delay")
 
     def testShouldReturn200AndCorrectDataWhenBasicUserRequests(self):
         token = Token.objects.get(user=self.test_basic_user)
@@ -32,8 +31,6 @@ class ImageListAPIViewTest(ViewBaseTestSetup, APITestCase):
         self.assertNotIn("image", response.data[0].keys())
         self.assertNotIn("binary", response.data[0].keys())
 
-    patch("celery.app.task.Task.delay")
-
     def testShouldReturn200AndCorrectDataWhenPremiumUserRequests(self):
         token = Token.objects.get(user=self.test_premium_user)
         header = {"HTTP_AUTHORIZATION": f"Token {token}"}
@@ -42,8 +39,6 @@ class ImageListAPIViewTest(ViewBaseTestSetup, APITestCase):
         self.assertIn("thumbnails", response.data[0].keys())
         self.assertIn("image", response.data[0].keys())
         self.assertNotIn("binary", response.data[0].keys())
-
-    patch("celery.app.task.Task.delay")
 
     def testShouldReturn200AndCorrectDataWhenEnterpriseUserRequests(self):
         token = Token.objects.get(user=self.test_enterprise_user)

@@ -11,7 +11,8 @@ from api.tests.test_views.viewstestsetup import ViewBaseTestSetup
 
 
 class ImageDisplayViewsTest(ViewBaseTestSetup, APITestCase):
-    def setUp(self) -> None:
+    @patch("celery.app.task.Task.delay")
+    def setUp(self, mock_task) -> None:
         super().setUp()
         self.test_image = ContentFile(b"...", name="test/test.png")
         self.fake_time = dt.fromisoformat("2023-02-13T13:00:00+00:00")
