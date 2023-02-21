@@ -1,4 +1,4 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 from nested_admin.nested import NestedModelAdminMixin, NestedStackedInline
 
@@ -113,3 +113,10 @@ class RegularUserAdmin(NestedModelAdminMixin, UserAdmin):
 
     def get_inline_instances(self, request, obj=None):
         return obj and super().get_inline_instances(request, obj) or []
+
+    def _add_view(self, request, form_url="", extra_context=None):
+        warning_message = """Please be aware that this form is intended for creating basic, premium \
+        and enterprise users for tests only, if you wish to create a custom user, please click on \
+        "Custom users Add" from the menu on the left."""
+        messages.warning(request, warning_message)
+        return super()._add_view(request, form_url="", extra_context=None)
