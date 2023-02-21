@@ -1,0 +1,88 @@
+services:
+    api:
+        build: .
+        command: >
+            sh -c "python manage.py migrate --no-input &&
+            python manage.py collectstatic --no-input &&
+            gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+        expose:
+            - 8000
+        volumes:
+            - static:/api/static
+            - media:/api/media
+        env_file:
+            - .env
+        networks:
+            - network_internet
+            - network_no_internet
+        depends_on:
+            db:
+                condition: service_healthy
+
+    nginx:
+        build: ./nginx
+        ports:
+            - 80:80
+        volumes:
+            - static:/api/static
+            - media:/api/media
+        networks:
+            - network_internet
+            - network_no_internet
+        depends_on:
+            - api
+
+    db:
+        image: postgres:14
+        environment:
+            - POSTGRES_DB=${DATABASE_NAME}
+            - POSTGRES_USERS=${DATABASE_USER}
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+        hostname: ${DATABASE_HOST}
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        networks:
+            - network_no_internet
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U ${DATABASE_USER}" ]
+            interval: 5s
+            timeout: 30s
+            retries: 6
+        restart: always
+
+    redis:
+        image: redis:7.0.8-alpine
+        networks:
+            - network_no_internet
+        healthcheck:
+            test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+
+    celery:
+        build: .
+        command: celery -A config worker -l INFO
+        volumes:
+            - media:/api/media
+        networks:
+            - network_no_internet
+            - network_internet
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            api:
+                condition: service_started
+        restart: always
+
+networks:
+    network_internet:
+        driver: bridge
+    network_no_internet:
+        driver: bridge
+        internal: true
+
+volumes:
+    pgdata:
+        driver: local
+    static:
+    media:
