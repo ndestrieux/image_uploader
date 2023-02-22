@@ -32,7 +32,7 @@ To run this project on your machine it is required to have installed previously 
 
   1. [Clone](https://help.github.com/articles/cloning-a-repository/) the repository on your machine.
   2. Create a .env file at the base of the project repository, in which you'll have to set the variables below.
-       <details>
+     <details>
        <summary>see .env file variables</summary>
         SECRET_KEY<br>
         DEBUG<br>
@@ -41,9 +41,16 @@ To run this project on your machine it is required to have installed previously 
         DATABASE_USER<br>
         DATABASE_PASSWORD<br>
         DATABASE_HOST<br>
-        </details>
+     </details>
   3. At the base of the project repository run the command: `docker compose up --build -d`
   4. Open the link to the web app in your web browser: http://0.0.0.0/
+  5. A live version is also available at http://ec2-18-193-117-18.eu-central-1.compute.amazonaws.com.
+     <details>
+          <summary>see API endpoints</summary>
+          /authtoken/: retrieve token<br>
+          /upload/: upload image<br>
+          /image_list/: list of images uploaded by requesting user
+     </details>
 </details>
 
 ## More detailed information about modules
@@ -51,10 +58,10 @@ To run this project on your machine it is required to have installed previously 
 <summary>see <b>info about modules</b></summary>
   <ul>
     <li>The app allows authenticated user to upload images via HTTP requests.</li>
-    <li>Authentication is done through token.</li>
+    <li>Request authentication is done through token.</li>
     <li>Depending on user type (basic, premium or enterprise), different versions of the image they uploaded will be generated.</li>
     <li>There is a fourth user type available, custom, which profile can be set by admins from django admin UI.</li>
-    <li>The image versions can be generated as binary image and/or thumbnails, different sizes of latter are generated based on user profile.</li>
+    <li>The image versions can be generated as binary image and/or thumbnails, different sizes of the latter are generated based on user profile.</li>
     <li>Users have access to the list of all images they uploaded with the link to display it, along with the links to the different versions of the image they can access.</li>
     <li>Users who have access to binary image have to set an expiration time during which the image can be accessed, once this time is up, the image won't be available anymore.</li>
   </ul>
